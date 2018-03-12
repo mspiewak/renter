@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -33,18 +32,14 @@ type TenantBill struct {
 	PaymentDate *time.Time `json:"payment_date" db:"payment_date"`
 }
 
-func getBills(db *sqlx.DB) []Bill {
+func getBills(db *sqlx.DB) ([]Bill, error) {
 	var bills []Bill
-	if err := db.Select(&bills, "SELECT * FROM bill"); err != nil {
-		log.Fatal(err)
-	}
-	return bills
+	err := db.Select(&bills, "SELECT * FROM bill")
+	return bills, err
 }
 
-func getTenantBills(db *sqlx.DB, id int) []TenantBill {
+func getTenantBills(db *sqlx.DB, id int) ([]TenantBill, error) {
 	var bills []TenantBill
-	if err := db.Select(&bills, "SELECT * FROM tenant_bill WHERE tenant_id = ?", id); err != nil {
-		log.Fatal(err)
-	}
-	return bills
+	err := db.Select(&bills, "SELECT * FROM tenant_bill WHERE tenant_id = ?", id)
+	return bills, err
 }

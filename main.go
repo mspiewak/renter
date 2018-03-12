@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,11 +20,11 @@ func main() {
 	defer app.DB.Close()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/tenant", app.getTenantsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/tenant/{id:[0-9]+}/bill", app.getTenantBills).Methods(http.MethodGet)
-	r.HandleFunc("/bill", app.getBills).Methods(http.MethodGet)
+	r.Handle("/tenant", errorHandler(app.getTenantsHandler)).Methods(http.MethodGet)
+	r.Handle("/tenant/{id:[0-9]+}/bill", errorHandler(app.getTenantBills)).Methods(http.MethodGet)
+	r.Handle("/bill", errorHandler(app.getBills)).Methods(http.MethodGet)
 
-	log.Fatal(http.ListenAndServe(":8090", r))
+	log.Fatal(http.ListenAndServe(":8090", commonHeaders(r)))
 }
 
 func (a *App) Initialize() {
@@ -39,46 +38,20 @@ func (a *App) Initialize() {
 	}
 }
 
-func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	tenants := getTenants(a.DB)
-	response, err := json.Marshal(tenants)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(response)
+func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	return getTenants(a.DB)
 }
 
-func (a *App) getBills(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	bills := getBills(a.DB)
-	response, err := json.Marshal(bills)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(response)
+func (a *App) getBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	return getBills(a.DB)
 }
 
-func (a *App) getTenantBills(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+func (a *App) getTenantBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	tenantID, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
-	bills := getTenantBills(a.DB, tenantID)
-	response, err := json.Marshal(bills)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(response)
+	return getTenantBills(a.DB, tenantID)
 }

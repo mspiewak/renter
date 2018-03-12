@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -15,13 +14,13 @@ type Tenant struct {
 	MoveInDate  *time.Time `json:"move_in_date" db:"move_in_date"`
 	MoveOutDate *time.Time `json:"move_out_date" db:"move_out_date"`
 	RoomID      int        `json:"room_id" db:"room_id"`
+	Deposit     float64    `json:"deposit" db:"deposit"`
+	Rent        float64    `json:"rent" db:"rent"`
 	Password    string     `json:"-" db:"password"`
 }
 
-func getTenants(db *sqlx.DB) []Tenant {
+func getTenants(db *sqlx.DB) ([]Tenant, error) {
 	var tenants []Tenant
-	if err := db.Select(&tenants, "SELECT * FROM tenant"); err != nil {
-		log.Fatal(err)
-	}
-	return tenants
+	err := db.Select(&tenants, "SELECT * FROM tenant")
+	return tenants, err
 }
