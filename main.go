@@ -10,6 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// App keeps application dependencies
 type App struct {
 	DB *sqlx.DB
 }
@@ -27,13 +28,11 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8090", commonHeaders(r)))
 }
 
+// Initialize the application
 func (a *App) Initialize() {
 	var err error
-	a.DB, err = sqlx.Open("mysql", "root:root@tcp(127.0.0.1:3306)/renter?parseTime=true")
+	a.DB, err = sqlx.Connect("mysql", "root:root@tcp(127.0.0.1:3306)/renter?parseTime=true")
 	if err != nil {
-		log.Fatal(err)
-	}
-	if err = a.DB.Ping(); err != nil {
 		log.Fatal(err)
 	}
 }
