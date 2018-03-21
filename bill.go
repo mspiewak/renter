@@ -13,33 +13,33 @@ type BillType struct {
 }
 
 type NestedBillType struct {
-	BillType
 	ID int `json:"id" db:"bill_type_id"`
+	BillType
 }
 
 // Bill keeps information about particular bill
 type Bill struct {
-	NestedBillType `json:"type"`
 	ID             int       `json:"id" db:"id"`
 	Price          float32   `json:"total_price" db:"total_price"`
 	DueDate        time.Time `json:"due_date" db:"due_date"`
 	PeriodStart    time.Time `json:"period_start" db:"period_start"`
 	PeriodEnd      time.Time `json:"period_end" db:"period_end"`
 	URL            *string   `json:"url" db:"url"`
+	NestedBillType `json:"type"`
 }
 
 type NestedBill struct {
-	Bill
 	ID int `json:"id" db:"bill_id"`
+	Bill
 }
 
 // TenantBill keeps information about bill breakdown per particular tenant
 type TenantBill struct {
-	NestedBill  `json:"bill"`
 	ID          int        `json:"id" db:"tid"`
 	TenantID    int        `json:"tenant_id" db:"tenant_id"`
 	Price       float32    `json:"price" db:"price"`
 	PaymentDate *time.Time `json:"payment_date" db:"payment_date"`
+	NestedBill  `json:"bill"`
 }
 
 func getBills(db *sqlx.DB) ([]Bill, error) {
@@ -49,6 +49,7 @@ func getBills(db *sqlx.DB) ([]Bill, error) {
 }
 
 func getTenantBills(db *sqlx.DB, id int) ([]TenantBill, error) {
+
 	var bills []TenantBill
 	err := db.Select(&bills, `
 		SELECT 
@@ -59,6 +60,7 @@ func getTenantBills(db *sqlx.DB, id int) ([]TenantBill, error) {
 		LEFT JOIN bill b ON (b.id=tb.bill_id) 
 		LEFT JOIN bill_type bt ON (b.bill_type_id=bt.id) 
 		WHERE tenant_id = ?
+		ORDER BY b.due_date DESC
 		`, id)
 	return bills, err
 }
