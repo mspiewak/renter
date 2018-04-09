@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 )
 
 func commonHeaders(next http.Handler) http.Handler {
@@ -23,6 +25,12 @@ func errorHandler(next errorHandlingMarshalFunc) http.Handler {
 		if err != nil {
 			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if reflect.ValueOf(result).Len() == 0 {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, []interface{}{})
 			return
 		}
 
