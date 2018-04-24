@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') { 
             steps { 
-                sh 'docker build -t mspiewak/renter' 
+                docker build -t mspiewak/renter
             }
         }
         stage('Deploy') {
