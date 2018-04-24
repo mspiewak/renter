@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -16,8 +17,22 @@ type App struct {
 
 func main() {
 	var app App
-	app.Initialize()
+
+	for {
+		log.Println("connecting")
+		err := app.Initialize()
+		if err != nil {
+			log.Println(err)
+			time.Sleep(time.Second * 10)
+			continue
+		}
+
+		break
+	}
+
 	defer app.DB.Close()
+
+	log.Println("succesfully connected")
 
 	r := mux.NewRouter()
 	r.Handle("/tenant", errorHandler(app.getTenantsHandler)).Methods(http.MethodGet)
@@ -28,12 +43,10 @@ func main() {
 }
 
 // Initialize the application
-func (a *App) Initialize() {
+func (a *App) Initialize() error {
 	var err error
-	a.DB, err = sqlx.Connect("mysql", "root:root@tcp(127.0.0.1:3306)/renter?parseTime=true")
-	if err != nil {
-		log.Fatal(err)
-	}
+	a.DB, err = sqlx.Connect("mysql", "root:root@tcp(localhost:3306)/renter?parseTime=true")
+	return err
 }
 
 func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) (interface{}, error) {
@@ -41,6 +54,7 @@ func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) (interfa
 }
 
 func (a *App) getBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	log.Println("bills")
 	return getBills(a.DB)
 }
 
