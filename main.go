@@ -38,6 +38,7 @@ func main() {
 	r.Handle("/tenant", errorHandler(app.getTenantsHandler)).Methods(http.MethodGet)
 	r.Handle("/tenant/{id:[0-9a-z]+}/bill", errorHandler(app.getTenantBills)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.getBills)).Methods(http.MethodGet)
+	r.Handle("/", errorHandler(app.getBills)).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(":8090", commonHeaders(r)))
 }
