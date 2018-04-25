@@ -12,4 +12,4 @@ jobs:
      # deploy the image
      - run: docker push mspiewak/renter:$CIRCLE_BRANCH
 
-     - run: ./deploy.sh --cluster ecs-cluster --service renter-service --task renter mspiewak/renter
+     - run: ./.circleci/deploy.sh --cluster ecs-cluster --service renter-service --task renter mspiewak/renter
