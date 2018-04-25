@@ -36,7 +36,6 @@ OLD_TASK_DEF=$(aws ecs describe-task-definition --task-definition $TASK_NAME --o
 OLD_TASK_DEF_REVISION=$(echo $OLD_TASK_DEF | jq ".taskDefinition|.revision")
 
 echo "dropping in the new image"
-echo $OLD_TASK_DEF
 NEW_TASK_DEF=$(echo $OLD_TASK_DEF | jq --arg NDI $DOCKER_IMAGE '.taskDefinition.containerDefinitions[0].image=$NDI')
 
 echo "create a new task template with all the required information to bring over"
@@ -52,7 +51,9 @@ echo "Updated task def revision: $UPDATED_TASK_DEF_REVISION"
 echo "switch over to the new task definition by selecting the newest revision"
 echo aws --version
 echo aws ecs update-service help
-SUCCESS_UPDATE=$(aws ecs update-service --forceNewDeployment --service $SERVICE_NAME --task-definition $TASK_NAME --cluster $CLUSTER_NAME)
+S1=$(aws --version)
+SU2=$(aws ecs update-service help)
+# SUCCESS_UPDATE=$(aws ecs update-service --forceNewDeployment --service $SERVICE_NAME --task-definition $TASK_NAME --cluster $CLUSTER_NAME)
 
 # echo "Verify the new task definition attached and the old task definitions de-register aka cleanup"
 # for attempt in {1..8}; do
