@@ -50,6 +50,8 @@ UPDATED_TASK_DEF_REVISION=$(echo $UPDATED_TASK | jq ".taskDefinition|.taskDefini
 echo "Updated task def revision: $UPDATED_TASK_DEF_REVISION"
 
 echo "switch over to the new task definition by selecting the newest revision"
+echo aws --version
+echo aws ecs update-service help
 SUCCESS_UPDATE=$(aws ecs update-service --forceNewDeployment --service $SERVICE_NAME --task-definition $TASK_NAME --cluster $CLUSTER_NAME)
 
 # echo "Verify the new task definition attached and the old task definitions de-register aka cleanup"
