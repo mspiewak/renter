@@ -20,7 +20,7 @@ done
 DOCKER_IMAGE=$1
 
 ### Upgrade awscli
-pip install --update 'awscli==1.15.8'
+pip install --upgrade 'awscli==1.15.8'
 source ~/.bashrc
 ###
 
