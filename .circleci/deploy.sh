@@ -26,13 +26,9 @@ aws configure set default.region $AWS_REGION
 aws configure set default.output json
 ###
 
-##### Push the new docker image
+##### Log in to aws
 echo "Logging in"
 eval $(aws ecr get-login --region $AWS_REGION --no-include-email)
-echo "Tagging the latest image"
-docker tag $CONTAINER_IMAGE:$DEPLOY_ENV $DOCKER_IMAGE
-echo "Pushing the latest image"
-docker -D push $DOCKER_IMAGE
 ######
 
 echo "Get the previous task definition"
