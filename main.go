@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -38,6 +40,7 @@ func main() {
 	r.Handle("/tenant", errorHandler(app.getTenantsHandler)).Methods(http.MethodGet)
 	r.Handle("/tenant/{id:[0-9a-z]+}/bill", errorHandler(app.getTenantBills)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.getBills)).Methods(http.MethodGet)
+	r.Handle("/bill", errorHandler(app.postBill)).Methods(http.MethodPost)
 	r.Handle("/", errorHandler(app.getBills)).Methods(http.MethodGet)
 	r.Handle("/tet", errorHandler(app.getBills)).Methods(http.MethodGet)
 
@@ -55,8 +58,20 @@ func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) (interfa
 	return getTenants(a.DB)
 }
 
+func (a *App) postBill(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	var bill Bill
+	if err := json.NewDecoder(r.Body).Decode(&bill); err != nil {
+		return nil, fmt.Errorf("cannot decode json: %v", err)
+	}
+
+	if err := postBill(a.DB, &bill); err != nil {
+		return nil, err
+	}
+
+	return bill, nil
+}
+
 func (a *App) getBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
-	log.Println("bills")
 	return getBills(a.DB)
 }
 
