@@ -50,7 +50,7 @@ func main() {
 // Initialize the application
 func (a *App) Initialize() error {
 	var err error
-	a.DB, err = sqlx.Connect("mysql", "root:root@tcp(localhost:3306)/renter?parseTime=true")
+	a.DB, err = sqlx.Connect("mysql", "root:root@tcp(db:3306)/renter?parseTime=true")
 	return err
 }
 
