@@ -10,11 +10,15 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
+
+	"github.com/mspiewak/renter/db"
+	"github.com/mspiewak/renter/model"
 )
 
 // App keeps application dependencies
 type App struct {
-	DB *sqlx.DB
+	DB             *sqlx.DB
+	billRepository *db.BillRepository
 }
 
 func main() {
@@ -49,9 +53,14 @@ func main() {
 
 // Initialize the application
 func (a *App) Initialize() error {
-	var err error
-	a.DB, err = sqlx.Connect("mysql", "root:root@tcp(db:3306)/renter?parseTime=true")
-	return err
+	dbc, err := sqlx.Connect("mysql", "root:root@tcp(localhost:3306)/renter?parseTime=true")
+	if err != nil {
+		return fmt.Errorf("cannot connect to db server: %v", err)
+	}
+
+	a.DB = dbc
+	a.billRepository = db.NewBillRepository(dbc)
+	return nil
 }
 
 func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) (interface{}, error) {
@@ -59,27 +68,50 @@ func (a *App) getTenantsHandler(w http.ResponseWriter, r *http.Request) (interfa
 }
 
 func (a *App) postBill(w http.ResponseWriter, r *http.Request) (interface{}, error) {
-	var bill Bill
+	var bill model.Bill
 	if err := json.NewDecoder(r.Body).Decode(&bill); err != nil {
 		return nil, fmt.Errorf("cannot decode json: %v", err)
 	}
 
-	if err := postBill(a.DB, &bill); err != nil {
+	if err := a.billRepository.CreateBill(&bill); err != nil {
 		return nil, err
+	}
+
+	dd, err := getDaysDistribution(a.DB, bill)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get days distribution: %v", err)
+	}
+
+	sum := 0
+	for _, r := range dd {
+		sum += r.Days
+	}
+
+	for _, r := range dd {
+		tb := model.TenantBill{
+			TenantID: r.TenantID,
+			Price:    float32(r.Days) * bill.Price / float32(sum),
+			Bill: model.Bill{
+				ID: bill.ID,
+			},
+		}
+		if err := a.billRepository.CreateTenantBill(&tb); err != nil {
+			return nil, fmt.Errorf("cannot create bill for tenant: %v", err)
+		}
 	}
 
 	return bill, nil
 }
 
 func (a *App) getBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
-	return getBills(a.DB)
+	return a.billRepository.GetAll()
 }
 
 func (a *App) getTenantBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
 	tenantID := getRealTenantID(vars["id"])
 
-	return getTenantBills(a.DB, tenantID)
+	return a.billRepository.GetByTenantId(tenantID)
 }
 
 func getRealTenantID(hash string) int {
