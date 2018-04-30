@@ -33,7 +33,7 @@ func (a *App) postBill(w http.ResponseWriter, r *http.Request) (interface{}, err
 	for tenantID, noOfDays := range noOfDaysRenting {
 		tb := model.TenantBill{
 			TenantID: tenantID,
-			Price:    float32(noOfDays) * bill.Price / float32(sum),
+			Price:    float64(noOfDays) * bill.Price / float64(sum),
 			Bill: model.Bill{
 				ID: bill.ID,
 			},

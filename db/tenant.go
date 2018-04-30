@@ -27,6 +27,18 @@ func (r *TenantRepository) GetAll() ([]model.Tenant, error) {
 	return tenants, err
 }
 
+func (r *TenantRepository) GetByID(id int) (model.Tenant, error) {
+	var tenant model.Tenant
+	err := r.db.Get(
+		&tenant,
+		`
+		SELECT id, first_name, last_name, move_in_date, room_id, deposit, rent, move_out_date 
+		FROM tenant
+		WHERE id = ?
+		`, id)
+	return tenant, err
+}
+
 func (r *TenantRepository) GetNumberOfRentingDays(periodStart, periodEnd time.Time) (map[int]int, error) {
 	nstmt, err := r.db.PrepareNamed(`
 		SELECT 

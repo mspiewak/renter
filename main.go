@@ -40,6 +40,7 @@ func main() {
 	r.Handle("/tenant/{id:[0-9a-z]+}/bill", errorHandler(app.getTenantBills)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.getBills)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.postBill)).Methods(http.MethodPost)
+	r.Handle("/cron/rent", errorHandler(app.postRent)).Methods(http.MethodPost)
 
 	log.Println("listening")
 	log.Fatal(http.ListenAndServe(":8090", commonHeaders(r)))
@@ -47,7 +48,7 @@ func main() {
 
 // Initialize the application
 func (a *App) Initialize() error {
-	dbc, err := sqlx.Connect("mysql", "root:root@tcp(db:3306)/renter?parseTime=true")
+	dbc, err := sqlx.Connect("mysql", "root:root@tcp(localhost:3306)/renter?parseTime=true")
 	if err != nil {
 		return fmt.Errorf("cannot connect to db server: %v", err)
 	}
