@@ -53,7 +53,7 @@ func (r *BillRepository) CreateTenantBill(tb *model.TenantBill) error {
 func (r *BillRepository) CreateBill(b *model.Bill) error {
 	res, err := r.db.Exec(
 		"INSERT INTO bill (total_price, due_date, period_start, period_end, url, bill_type_id) VALUES (?,?,?,?,?,?)",
-		b.Price, b.DueDate, b.PeriodStart, b.PeriodEnd, b.URL, b.Type.ID,
+		b.Price, b.DueDate.Format("2006-01-02"), b.PeriodStart.Format("2006-01-02"), b.PeriodEnd.Format("2006-01-02"), b.URL, b.Type.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("cannot insert row: %v", err)
