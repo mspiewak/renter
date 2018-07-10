@@ -48,7 +48,7 @@ func main() {
 
 // Initialize the application
 func (a *App) Initialize() error {
-	dbc, err := sqlx.Connect("mysql", "root:root@tcp(db:3306)/renter?parseTime=true")
+	dbc, err := sqlx.Connect("mysql", "root:root@tcp(localhost:3306)/renter?parseTime=true")
 	if err != nil {
 		return fmt.Errorf("cannot connect to db server: %v", err)
 	}
@@ -69,6 +69,8 @@ func getRealTenantID(hash string) int {
 		return 3
 	case "wm4yk48":
 		return 4
+	case "j2i9kzr":
+		return 5
 	}
 
 	return 0
