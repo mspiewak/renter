@@ -15,9 +15,10 @@ import (
 
 // App keeps application dependencies
 type App struct {
-	DB               *sqlx.DB
-	billRepository   *db.BillRepository
-	tenantRepository *db.TenantRepository
+	DB                *sqlx.DB
+	billRepository    *db.BillRepository
+	tenantRepository  *db.TenantRepository
+	paymentRepository *db.PaymentRepository
 }
 
 func main() {
@@ -38,6 +39,7 @@ func main() {
 	r := mux.NewRouter()
 	r.Handle("/tenant", errorHandler(app.getTenantsHandler)).Methods(http.MethodGet)
 	r.Handle("/tenant/{id:[0-9a-z]+}/bill", errorHandler(app.getTenantBills)).Methods(http.MethodGet)
+	r.Handle("/tenant/{id:[0-9a-z]+}/payment", errorHandler(app.getTenantPayments)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.getBills)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.postBill)).Methods(http.MethodPost)
 	r.Handle("/cron/rent", errorHandler(app.postRent)).Methods(http.MethodPost)
@@ -56,6 +58,7 @@ func (a *App) Initialize() error {
 	a.DB = dbc
 	a.billRepository = db.NewBillRepository(dbc)
 	a.tenantRepository = db.NewTenantRepository(dbc)
+	a.paymentRepository = db.NewPaymentRepository(dbc)
 	return nil
 }
 
