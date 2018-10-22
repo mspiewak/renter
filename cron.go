@@ -3,12 +3,15 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/mspiewak/renter/model"
 )
 
 func (a *App) postRent(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	tID, ok := r.URL.Query()["tenantId"]
+
 	now := time.Now().Add(time.Hour * 24)
 	currentYear, currentMonth, _ := now.Date()
 
@@ -21,6 +24,10 @@ func (a *App) postRent(w http.ResponseWriter, r *http.Request) (interface{}, err
 
 	var bills []model.Bill
 	for tenantID, days := range tenants {
+		if ok && len(tID[0]) > 0 && strconv.Itoa(tenantID) != tID[0] {
+			continue
+		}
+
 		days++
 		tenant, err := a.tenantRepository.GetByID(tenantID)
 		if err != nil {
