@@ -56,3 +56,9 @@ func (a *App) getTenantBills(w http.ResponseWriter, r *http.Request) (interface{
 
 	return a.billRepository.GetByTenantId(tenantID)
 }
+
+func (a *App) optionsBills(w http.ResponseWriter, r *http.Request) (interface{}, error) {
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	return []interface{}{}, nil
+}

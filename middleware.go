@@ -28,7 +28,7 @@ func errorHandler(next errorHandlingMarshalFunc) http.Handler {
 			return
 		}
 
-		if result == nil || (reflect.TypeOf(result).Kind() == reflect.Slice && reflect.ValueOf(result).Len() == 0) {
+		if r.Method != http.MethodOptions && (result == nil || (reflect.TypeOf(result).Kind() == reflect.Slice && reflect.ValueOf(result).Len() == 0)) {
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprint(w, []interface{}{})
 			return
