@@ -43,6 +43,7 @@ func main() {
 	r.Handle("/bill", errorHandler(app.getBills)).Methods(http.MethodGet)
 	r.Handle("/bill", errorHandler(app.postBill)).Methods(http.MethodPost)
 	r.Handle("/bill", errorHandler(app.optionsBills)).Methods(http.MethodOptions)
+	r.Handle("/stats/income", errorHandler(app.getIncome)).Methods(http.MethodGet)
 	r.Handle("/cron/rent", errorHandler(app.postRent)).Methods(http.MethodPost)
 
 	log.Println("listening")
