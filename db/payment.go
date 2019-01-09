@@ -30,10 +30,11 @@ func (r *PaymentRepository) GetByTenantId(id int) ([]model.Payment, error) {
 func (r *PaymentRepository) GetIncome(taxRate float32) ([]model.Income, error) {
 	var income []model.Income
 	err := r.db.Select(&income, `
-		SELECT YEAR(payment_date) as year, MONTH(payment_date) as month, ROUND(SUM(amount), 2) as total, ROUND(SUM(amount) * ? / 100, 2) as tax
-		FROM payment 
-		GROUP BY YEAR(payment_date), MONTH(payment_date)
-		ORDER BY YEAR(payment_date) DESC, MONTH(payment_date) DESC
+		SELECT YEAR(due_date) as year, MONTH(due_date) as month, ROUND(SUM(total_price), 2) as total, ROUND(SUM(total_price) * 8.5 / 100, 2) as tax
+		FROM bill
+		WHERE bill_type_id=1
+		GROUP BY YEAR(due_date), MONTH(due_date)
+		ORDER BY YEAR(due_date) DESC, MONTH(due_date) DESC
 		`, taxRate)
 	return income, err
 }
