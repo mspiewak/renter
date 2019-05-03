@@ -52,7 +52,7 @@ func main() {
 
 // Initialize the application
 func (a *App) Initialize() error {
-	dbc, err := sqlx.Connect("mysql", "root:EKZ9DZNNnphQ@tcp(db:3306)/renter?parseTime=true")
+	dbc, err := sqlx.Connect("mysql", "root:Jg2FXug3rg@tcp(db:3306)/renter?parseTime=true")
 	if err != nil {
 		return fmt.Errorf("cannot connect to db server: %v", err)
 	}
