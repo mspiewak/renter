@@ -10,10 +10,27 @@ import (
 )
 
 func (a *App) postRent(w http.ResponseWriter, r *http.Request) (interface{}, error) {
-	tID, ok := r.URL.Query()["tenantId"]
-
 	now := time.Now().Add(time.Hour * 24)
 	currentYear, currentMonth, _ := now.Date()
+	var err error
+
+	tID, ok := r.URL.Query()["tenantId"]
+	currentMonthStr, okm := r.URL.Query()["month"]
+	if okm {
+		currentMonthInt, err := strconv.Atoi(currentMonthStr[0])
+		if err != nil {
+			return nil, fmt.Errorf("cannot get tenants for current month: %v", err)
+		}
+		currentMonth = time.Month(currentMonthInt)
+	}
+
+	currentYearStr, oky := r.URL.Query()["year"]
+	if oky {
+		currentYear, err = strconv.Atoi(currentYearStr[0])
+		if err != nil {
+			return nil, fmt.Errorf("cannot get tenants for current year: %v", err)
+		}
+	}
 
 	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, now.Location())
 	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
