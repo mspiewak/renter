@@ -43,10 +43,10 @@ func (r *TenantRepository) GetNumberOfRentingDays(periodStart, periodEnd time.Ti
 	nstmt, err := r.db.PrepareNamed(`
 		SELECT 
 			tenant.id as tenant_id, 
-			DATEDIFF(
+			(DATEDIFF(
 				IF(move_out_date < :period_end, move_out_date, :period_end), 
 				IF(move_in_date > :period_start, move_in_date, :period_start)
-			) as days
+			) + 1) * noOfPeople as days
 		FROM tenant 
 		WHERE tenant.move_in_date < :period_end
 		AND (tenant.move_out_date IS NULL || tenant.move_out_date > :period_start)
