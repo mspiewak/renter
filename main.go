@@ -86,6 +86,8 @@ func getRealTenantID(hash string) int {
 		return 9
 	case "pw8bvo9":
 		return 10
+	case "kc8dn4j":
+		return 11
 	}
 
 	return 0
